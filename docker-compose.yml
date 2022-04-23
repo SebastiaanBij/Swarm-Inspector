@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  si_manager:
+    container_name: SI-Manager
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: si-manager
+    image: si-manager:v0.1.0
+    restart: always
+    ports:
+      - "2001:2001"
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - net_si
+
+  si_agent:
+    container_name: SI-Agent
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: si-agent
+    image: si-agent:v0.1.0
+    depends_on:
+      - si_manager
+    restart: always
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - net_si
+
+networks:
+  net_si:
+    external:
+      name: ${NET_SI}
